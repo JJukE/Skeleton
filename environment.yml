@@ -1,0 +1,11 @@
+name: proj_name
+channels:
+- pytorch
+- defaults
+dependencies:
+- python=[version]
+- pytorch=[vesion]
+- scipy
+- pip
+- pip:
+  - wandb==[version]
