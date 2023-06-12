@@ -1,19 +1,13 @@
-"""Util functions for 2D (image) dataset code or 3D dataset code
-
+"""Util functions for 2D (image) dataset code
 """
 import os
+import random
 
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+from torchvision import transforms
 from PIL import Image
-
-
-#============================================================
-# 3D domain
-#============================================================
-
-
 
 
 #============================================================
