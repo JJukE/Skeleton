@@ -1,5 +1,5 @@
 import torch
-from jjuke.network_utils import reduce_dict
+from jjuke.network_utils.distributed import reduce_dict
 
 
 class BaseTrainer(object):

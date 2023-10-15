@@ -1,4 +1,4 @@
-from jjuke.network_utils import Registry
+from jjuke.network_utils.registry import Registry
 
 METHODS = Registry('method')
 MODULES = Registry('module')

@@ -1,6 +1,6 @@
 #  Trainer for P2RNet.
 from models.training import BaseTrainer
-from jjuke.network_utils import reduce_dict
+from jjuke.network_utils.distributed import reduce_dict
 
 
 class Trainer(BaseTrainer):

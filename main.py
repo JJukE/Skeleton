@@ -5,7 +5,7 @@ from jjuke.utils import seed_everything
 
 def single_proc_run(config):
     from configs.config_utils import CONFIG
-    from jjuke.network_utils import initiate_environment
+    from jjuke.network_utils.distributed import initiate_environment
     initiate_environment(config)
     cfg = CONFIG(config)
 
@@ -35,7 +35,7 @@ def main(config):
     os.environ["OMP_NUM_THREADS"] = str(config.distributed.OMP_NUM_THREADS)
     # config.root_dir = hydra.utils.get_original_cwd()
 
-    from jjuke.network_utils import multi_proc_run
+    from jjuke.network_utils.distributed import multi_proc_run
     print('Initialize device environments')
     seed_everything(config.seed)
     

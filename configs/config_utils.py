@@ -1,4 +1,4 @@
-from jjuke.network_utils import is_master_proc
+from jjuke.network_utils.distributed import is_master_proc
 from jjuke.utils.logger import CustomLogger
 
 
