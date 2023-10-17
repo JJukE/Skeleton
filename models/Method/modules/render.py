@@ -25,23 +25,25 @@ def move_meshes_to_box3ds(meshes, centers, sizes):
 
 @MODULES.register_module
 class Proj2Img(nn.Module):
-    def __init__(self, cfg, optim_spec=None, device='cuda'):
-        '''
-        Proj 3D boxes to 2D image plane.
-        :param cfg: configuration file.
-        :param optim_spec: optimizer parameters.
-        '''
+    def __init__(self, cfg, optim_spec=None, device="cuda"):
+        """ Proj 3D boxes to 2D image plane.
+
+        Args:
+            cfg: configuration file.
+            optim_spec: optimizer parameters.
+        """
         super(Proj2Img, self).__init__()
-        '''Optimizer parameters used in training'''
+
+        """ Optimizer parameters used in training """
         self.optim_spec = optim_spec
         self.device = device
         image_sizes = cfg.image_size
         self.cfg = cfg
-        split = cfg.config.test.finetune_split if cfg.config.mode == 'test' else cfg.config.mode
+        split = cfg.config.test.finetune_split if cfg.config.mode == "test" else cfg.config.mode
         n_views = cfg.config.data.n_views * cfg.config[split].batch_size // cfg.config.distributed.num_gpus
         downsample_ratio = cfg.config.data.downsample_ratio
 
-        '''set renderer'''
+        """ Set renderer """
         sigma = 1e-4
 
         # initialize cameras
@@ -88,18 +90,18 @@ class Proj2Img(nn.Module):
         silhouettes = silhouettes[..., 3]
         silhouettes = silhouettes.view(n_batch, n_view, *silhouettes.shape[1:])
 
-        '''Get instance masks'''
+        """ Get instance masks """
         instance_labels = fragments.pix_to_face[..., 0]
 
         if render_mask_tr is not None:
             render_mask_tr = torch.logical_not(render_mask_tr.flatten(0, 1))
             instance_labels = instance_labels.masked_fill(render_mask_tr, -1)
 
-        # scene_ids = torch.div(instance_labels, (n_view * n_object * self.faces_per_template), rounding_mode='floor')
+        # scene_ids = torch.div(instance_labels, (n_view * n_object * self.faces_per_template), rounding_mode="floor")
         remaining = torch.remainder(instance_labels, (n_view * n_object * self.faces_per_template))
-        # view_ids = torch.div(remaining, (n_object * self.faces_per_template), rounding_mode='floor')
+        # view_ids = torch.div(remaining, (n_object * self.faces_per_template), rounding_mode="floor")
         remaining = torch.remainder(remaining, (n_object * self.faces_per_template))
-        obj_ids = torch.div(remaining, (self.faces_per_template), rounding_mode='floor')
+        obj_ids = torch.div(remaining, (self.faces_per_template), rounding_mode="floor")
         # face_ids = torch.remainder(remaining, (self.faces_per_template))
 
         obj_ids[instance_labels < 0] = -1
@@ -126,7 +128,7 @@ class Proj2Img(nn.Module):
         return proj_points, in_frustum, points_on_meshes
 
     def generate(self, box3ds, meshes, cam_Ts, cam_Ks, image_sizes, render_mask_tr, start_deform=False, **kwargs):
-        '''see forward'''
+        """ see forward """
         n_batches = len(box3ds)
         outputs = []
         for b_id in range(n_batches):
@@ -147,7 +149,7 @@ class Proj2Img(nn.Module):
             points_2d, in_frustum, points_on_meshes = self.project_points(posed_meshes, cam_Ts[[b_id]].clone(), cam_Ks[[b_id]].clone(),
                                                                           image_sizes[[b_id]].clone())
 
-            '''render meshes to silhouettes'''
+            """ render meshes to silhouettes """
             if start_deform:
                 render_mask = render_mask_tr[[b_id]] if render_mask_tr is not None else None
                 silhouettes, obj_ids = self.render_instances(posed_meshes, cam_Ts[[b_id]].clone(), cam_Ks[[b_id]].clone(),
@@ -158,37 +160,37 @@ class Proj2Img(nn.Module):
                 obj_ids = None
 
             outputs.append(
-                {'box3ds': box3ds[b_id],
-                 'silhouettes': silhouettes,
-                 'obj_ids': obj_ids,
-                 'points_2d':points_2d,
-                 'posed_meshes': posed_meshes})
+                {"box3ds": box3ds[b_id],
+                 "silhouettes": silhouettes,
+                 "obj_ids": obj_ids,
+                 "points_2d":points_2d,
+                 "posed_meshes": posed_meshes})
 
         return outputs
 
     def forward(self, box3ds, meshes, cam_Ts, cam_Ks, image_sizes, render_mask_tr, start_deform=False,
                     pred_gt_matching=None, pred_mask=None, **kwargs):
-        '''
-        Render generated boxes given cam params
-        :param box3ds: n_batch x n_box x box_dim
-        :param meshes: (n_batch * n_view) x pytorch3d mesh
-        :param cam_Ts: n_batch x n_view x 4 x 4
-        :param cam_Ks: n_batch x n_view x 3 x 3
-        :param render_mask_tr: n_batch x n_view x im_height x im_width
-        :param image_sizes: n_batch x n_view x 2
-        :return:
-        '''
+        """ Render generated boxes given cam params
+
+        Args:
+            box3ds: n_batch x n_box x box_dim
+            meshes: (n_batch * n_view) x pytorch3d mesh
+            cam_Ts: n_batch x n_view x 4 x 4
+            cam_Ks: n_batch x n_view x 3 x 3
+            render_mask_tr: n_batch x n_view x im_height x im_width
+            image_sizes: n_batch x n_view x 2
+        """
         centers = box3ds[..., :3]
         sizes = box3ds[..., 3:6]
         classes_completeness = box3ds[..., 6:]
 
-        if self.cfg.config.mode == 'train':
+        if self.cfg.config.mode == "train":
             if pred_mask is not None:
                 pred_mask = pred_mask[:, :, None].expand(-1, -1, 3)
                 sizes.masked_fill_(pred_mask, 0.)
                 centers.masked_fill_(pred_mask, 0.)
-        elif (self.cfg.config.mode == 'demo' and self.cfg.config.data.n_views == 1) or (
-                    self.cfg.config.mode == 'test' and self.cfg.config.test.n_views_for_finetune == 1):
+        elif (self.cfg.config.mode == "demo" and self.cfg.config.data.n_views == 1) or (
+                    self.cfg.config.mode == "test" and self.cfg.config.test.n_views_for_finetune == 1):
             if pred_gt_matching is not None:
                 masks = torch.ones_like(sizes, dtype=torch.bool)
                 for batch_id, pair_batch in enumerate(pred_gt_matching):
@@ -208,7 +210,7 @@ class Proj2Img(nn.Module):
         # render points on meshes to points on 2D
         points_2d, in_frustum, points_on_meshes = self.project_points(meshes, cam_Ts.clone(), cam_Ks.clone(), image_sizes.clone())
 
-        '''render meshes to silhouettes'''
+        """ render meshes to silhouettes """
         if start_deform:
             silhouettes, obj_ids = self.render_instances(meshes, cam_Ts.clone(), cam_Ks.clone(), image_sizes.clone(),
                                                          render_mask_tr)
@@ -216,9 +218,9 @@ class Proj2Img(nn.Module):
             silhouettes = None
             obj_ids = None
 
-        return {'points_2d': points_2d,
-                'points_3d': points_on_meshes,
-                'in_frustum': in_frustum,
-                'classes_completeness': classes_completeness,
-                'silhouettes': silhouettes,
-                'obj_ids': obj_ids}
+        return {"points_2d": points_2d,
+                "points_3d": points_on_meshes,
+                "in_frustum": in_frustum,
+                "classes_completeness": classes_completeness,
+                "silhouettes": silhouettes,
+                "obj_ids": obj_ids}

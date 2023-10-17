@@ -4,15 +4,15 @@ from torch.utils.data import Dataset
 
 class BaseDataset(Dataset):
     def __init__(self, cfg, mode):
-        '''
-        Initiate a base dataset for data loading in other networks.
+        """ Initiate a base dataset for data loading in other networks.
         This is just an example, it can be changed for common dataset code for various [Method]s
         or even nothing if all methods has each different dataset codes. In this case, dataset
         code will be in the "./Method/dataloader.py".
 
-        :param cfg: config file
-        :param mode: train/val/eval mode
-        '''
+        Args:
+            cfg: config file
+            mode: train/val/eval mode
+        """
         self.cfg = cfg
         self.mode = mode
         self._room_uids = cfg.room_uids[self.mode]
@@ -31,13 +31,13 @@ class BaseDataset(Dataset):
             self.sample_n_views_per_scene(n_views_for_finetune)
 
         if room_uid is not None:
-            if 'aug' not in room_uid:
-                room_uid = room_uid+'_aug_0'
+            if "aug" not in room_uid:
+                room_uid = room_uid+"_aug_0"
             self._split = {room_uid: self.split[room_uid]}
             self._room_uids = [room_uid]
 
     def sample_n_views_per_scene(self, n_views_for_finetune):
-        '''Sample n views per scene.'''
+        """Sample n views per scene."""
         for room_uid in self.room_uids:
             samples_in_room = self.split[room_uid]
             if len(samples_in_room) > n_views_for_finetune:

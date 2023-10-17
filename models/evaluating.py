@@ -1,17 +1,17 @@
 class BaseEvaluater(object):
-    ''' Base evaluater for all networks. '''
+    """ Base evaluater for all networks. """
     def __init__(self, cfg, net, device=None):
         self.cfg = cfg
         self.net = net
         self.device = device
 
     def visualize_step(self, *args, **kwargs):
-        ''' Performs a visualization step. '''
+        """ Performs a visualization step. """
         if not self.cfg.is_master:
             return
         raise NotImplementedError
 
     def get_metric_values(self, est_data, gt_data):
-        ''' Performs a evaluation step. '''
+        """ Performs a evaluation step. """
         # camera orientation error
         raise NotImplementedError

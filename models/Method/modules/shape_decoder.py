@@ -6,19 +6,20 @@ from models.registers import MODULES
 
 @MODULES.register_module
 class ShapeDecoder(nn.Module):
-    def __init__(self, cfg, optim_spec=None, device='cuda'):
-        '''
-        Decode shapes from a latent vector.
-        :param cfg: configuration file.
-        :param optim_spec: optimizer parameters.
-        '''
+    def __init__(self, cfg, optim_spec=None, device="cuda"):
+        """ Decode shapes from a latent vector.
+
+        Args:
+            cfg: configuration file.
+            optim_spec: optimizer parameters.
+        """
         super(ShapeDecoder, self).__init__()
 
-        '''Optimizer parameters used in training'''
+        """ Optimizer parameters used in training """
         self.optim_spec = optim_spec
         self.device = device
 
-        '''Modules'''
+        """ Modules """
         self.src_mesh # = ...
         inst_latent_len = cfg.config.data.backbone_latent_len
         self.mlp_feat = nn.Sequential(nn.Linear(inst_latent_len, 512), nn.ReLU(),

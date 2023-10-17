@@ -7,23 +7,23 @@ class Trainer(BaseTrainer):
     """ DiffuScene Trainer """
     def __init__(self, cfg, net, optimizer, device=None):
         super().__init__(cfg, net, optimizer, device)
-        self.latent_input = net['latent_input'] # 
-        self.generator = net['generator']
+        self.latent_input = net["latent_input"] # 
+        self.generator = net["generator"]
 
     def eval_step(self, data):
-        '''
-        performs a step in evaluation
-        :param data (dict): data dictionary
-        :return:
-        '''
-        '''load input and ground-truth data'''
+        """ Performs a step in evaluation
+
+        Args:
+            data (dict): data dictionary
+        """
+        """ Load input and ground-truth data """
         data = self.to_device(data)
 
-        '''network forwarding'''
+        """ Network forwarding """
         latent_z = self.latent_input(data)
         est_data = self.generator(latent_z, data)
 
-        '''compute losses'''
+        """ Compute losses """
         if self.cfg.config.distributed.use_ddp:
             loss = self.generator.module.loss(est_data, data)
         else:
@@ -34,16 +34,16 @@ class Trainer(BaseTrainer):
         loss_dict = {k: v.item() for k, v in loss_reduced.items()}
         return loss_dict
 
-    def train_step(self, data, stage='all', start_deform=False, **kwargs):
-        '''
-        performs a step training
-        :param data (dict): data dictionary
-        :return:
-        '''
-        if stage == 'all':
+    def train_step(self, data, stage="all", start_deform=False, **kwargs):
+        """ Performs a step training
+
+        Args:
+            data (dict): data dictionary
+        """
+        if stage == "all":
             net_types = self.optimizer.keys()
-        elif stage == 'latent_only':
-            net_types = ['latent_input']
+        elif stage == "latent_only":
+            net_types = ["latent_input"]
         else:
             raise ValueError("No such stage.")
 
@@ -52,10 +52,10 @@ class Trainer(BaseTrainer):
 
         loss, extra_output = self.compute_loss(data, start_deform=start_deform, **kwargs)
 
-        if loss['total'].requires_grad:
-            loss['total'].backward()
+        if loss["total"].requires_grad:
+            loss["total"].backward()
             if self.cfg.config.train.clip_norm:
-                self.clip_grad_norm(net=self.net['generator'])
+                self.clip_grad_norm(net=self.net["generator"])
             for net_type in net_types:
                 self.optimizer[net_type].step()
 
@@ -65,8 +65,7 @@ class Trainer(BaseTrainer):
         return loss_dict, extra_output
 
     def visualize_step(self, *args, **kwargs):
-        ''' Performs a visualization step.
-        '''
+        """ Performs a visualization step. """
         if not self.cfg.is_master:
             return
         pass
@@ -74,24 +73,24 @@ class Trainer(BaseTrainer):
     def to_device(self, data):
         device = self.device
         for key in data:
-            if key in ['sample_name']: continue
+            if key in ["sample_name"]: continue
             data[key] = data[key].to(device)
         return data
 
     def compute_loss(self, data, start_deform=False, **kwargs):
-        '''
-        compute the overall loss.
-        :param data (dict): data dictionary
-        :return:
-        '''
-        '''load input and ground-truth data'''
+        """ Compute the overall loss.
+
+        Args:
+            data (dict): data dictionary
+        """
+        """ Load input and ground-truth data """
         data = self.to_device(data)
 
-        '''network forwarding'''
+        """ Network forwarding """
         latent_z = self.latent_input(data)
         est_data = self.generator(latent_z, data, start_deform=start_deform, **kwargs)
 
-        '''compute losses'''
+        """ Compute losses """
         if self.cfg.config.distributed.use_ddp:
             loss, extra_output = self.generator.module.loss(est_data, data, start_deform=start_deform, **kwargs)
         else:

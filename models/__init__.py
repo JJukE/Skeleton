@@ -7,4 +7,4 @@ method_paths = {
     "Method3": Method3
 }
 
-__all__ = ['method_paths']
+__all__ = ["method_paths"]

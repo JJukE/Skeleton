@@ -7,18 +7,20 @@ from models.registers import MODULES
 
 @MODULES.register_module
 class ARTransformer(nn.Module):
-    def __init__(self, cfg, optim_spec=None, device='cuda'):
-        '''
+    def __init__(self, cfg, optim_spec=None, device="cuda"):
+        """
         Encode scene priors from embeddings
-        :param cfg: configuration file.
-        :param optim_spec: optimizer parameters.
-        '''
+
+        Args:
+            cfg: configuration file.
+            optim_spec: optimizer parameters.
+        """
         super().__init__()
-        '''Optimizer parameters used in training'''
+        """ Optimizer parameters used in training """
         self.optim_spec = optim_spec
         self.device = device
 
-        '''Network'''
+        """ Network """
         # Parameters
         self.z_dim = cfg.config.data.z_dim
         self.inst_latent_len = cfg.config.data.backbone_latent_len
@@ -62,7 +64,7 @@ class ARTransformer(nn.Module):
 
     @torch.no_grad()
     def generate_boxes(self, latent_codes, room_type_idx, pred_gt_matching=None, self_end=False, threshold=0.5, **kwargs):
-        '''Generate boxes from latent codes'''
+        """ Generate boxes from latent codes """
         if pred_gt_matching is None:
             self_end = True
 

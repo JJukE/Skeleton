@@ -8,9 +8,9 @@ from models import method_paths
 
 
 def load_device(cfg):
-    '''
-    load device settings
-    '''
+    """
+    Load device settings
+    """
     if cfg.config.device.use_gpu and torch.cuda.is_available():
         cfg.info('GPU mode is on.')
         return torch.device(torch.cuda.current_device())
@@ -19,12 +19,12 @@ def load_device(cfg):
         return torch.device("cpu")
 
 def load_model(cfg, device):
-    '''
-    load specific network from configuration file
-    :param cfg: configuration file
-    :param device: torch.device
-    :return:
-    '''
+    """ Load specific network from configuration file
+
+    Args:
+        cfg: configuration file
+        device: torch.device
+    """
     net = {}
     for net_type, net_specs in cfg.config.model.items():
         if net_specs.method not in METHODS.module_dict:
@@ -47,14 +47,14 @@ def load_model(cfg, device):
     return net
 
 def load_trainer(cfg, net, optimizer, device):
-    '''
-    load trainer for training and validation
-    :param cfg: configuration file
-    :param net: nn.Module network
-    :param optimizer: torch.optim
-    :param device: torch.device
-    :return:
-    '''
+    """ Load trainer for training and validation
+
+    Args:
+        cfg: configuration file
+        net: nn.Module network
+        optimizer: torch.optim
+        device: torch.device
+    """
     trainer = method_paths[cfg.config.method].config.get_trainer(cfg=cfg,
                                                                  net=net,
                                                                  optimizer=optimizer,
@@ -62,13 +62,13 @@ def load_trainer(cfg, net, optimizer, device):
     return trainer
 
 def load_evaluater(cfg, net, device):
-    '''
-    load evaluater for evaluation
-    :param cfg: configuration file
-    :param net: nn.Module network
-    :param device: torch.device
-    :return:
-    '''
+    """ Load evaluater for evaluation
+
+    Args:
+        cfg: configuration file
+        net: nn.Module network
+        device: torch.device
+    """
     evaluater = method_paths[cfg.config.method].config.get_evaluater(
         cfg=cfg,
         net=net,
@@ -76,11 +76,11 @@ def load_evaluater(cfg, net, device):
     return evaluater
 
 def load_dataloader(cfg, mode):
-    '''
-    load dataloader
-    :param cfg: configuration file.
-    :param mode: 'train', 'val' or 'eval'.
-    :return:
-    '''
+    """ Load dataloader
+
+    Args:
+        cfg: configuration file.
+        mode: 'train', 'val' or 'eval'.
+    """
     dataloader = method_paths[cfg.config.method].config.get_dataloader(cfg=cfg, mode=mode)
     return dataloader
