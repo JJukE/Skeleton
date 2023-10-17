@@ -9,19 +9,24 @@ from .training import Trainer
 
 class Evaluater(BaseEvaluater, Trainer):
     """ Evaluater object """
-
     def __init__(self, cfg, net, device=None):
         super().__init__(cfg, net, device)
+
         self.latent_input = net["latent_input"]
         self.generator = net["generator"]
+
 
     def get_metric_values(self, est_data, gt_data):
         """ Performs a evaluation step. """
         pass
 
+
+    @torch.no_grad()
     def evaluate_step(self, est_data, data=None):
+        """ Distinguish to the eval_step from Trainer! """
         eval_metrics = {}
         return eval_metrics
+
 
     def interpolate(self, room_idx_1, room_idx_2, interval, room_type_idx, start_deform=False):
         """ Network forwarding """
@@ -38,6 +43,7 @@ class Evaluater(BaseEvaluater, Trainer):
                                                     output_render=False)
         return est_data
 
+
     def generate(self, room_type_idx, start_deform=False):
         """ Network forwarding """
         if self.cfg.config.distributed.use_ddp:
@@ -50,8 +56,9 @@ class Evaluater(BaseEvaluater, Trainer):
                                                     output_render=False)
         return est_data
 
-    def evaluate_step(self, data, start_deform=False, **kwargs):
-        """ Evaluate by epoch """
+    @torch.no_grad()
+    def test_step(self, data, start_deform=False, **kwargs):
+        """ Test by epoch """
         """ Load input and ground-truth data """
         data = self.to_device(data)
 
@@ -64,6 +71,7 @@ class Evaluater(BaseEvaluater, Trainer):
 
         # for logging
         return eval_metrics, est_data
+
 
     def visualize_interp(self, phase, output_filename, est_data):
         if not self.cfg.is_master:
@@ -92,6 +100,7 @@ class Evaluater(BaseEvaluater, Trainer):
                      sizes=sizes[0],
                      mesh_vertices=mesh_vertices,
                      mesh_faces=mesh_faces)
+
 
     def visualize_step(self, phase, iter, gt_data, est_data, dump_dir=None):
         """ Performs a visualization step. """

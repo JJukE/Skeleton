@@ -4,7 +4,7 @@ from time import time
 import torch
 import wandb
 
-from utils.net_utils import CheckpointIO, LossRecorder, AverageMeter
+from jjuke.network_utils.utils import CheckpointIO, LossRecorder, AverageMeter
 from models.optimizers import load_optimizer, load_scheduler, load_bnm_scheduler
 from utils.net_utils import load_device, load_model, load_trainer, load_dataloader
 

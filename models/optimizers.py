@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from omegaconf.errors import ConfigKeyError
 
 
 def has_optim_in_children(subnet):
@@ -46,9 +47,12 @@ def load_scheduler(cfg, optimizer):
     """
     schedulers = dict()
     for optim_type in optimizer.keys():
-        schedulers[optim_type] = torch.optim.lr_scheduler.MultiStepLR(optimizer[optim_type],
-                                                                      milestones=cfg.config.scheduler[optim_type].milestones,
-                                                                      gamma=cfg.config.scheduler[optim_type].gamma)
+        try:
+            schedulers[optim_type] = torch.optim.lr_scheduler.MultiStepLR(optimizer[optim_type],
+                                                                          milestones=cfg.config.scheduler[optim_type].milestones,
+                                                                          gamma=cfg.config.scheduler[optim_type].gamma)
+        except ConfigKeyError as e:
+            cfg.warn(e)
     return schedulers
 
 def load_bnm_scheduler(cfg, net, start_epoch):

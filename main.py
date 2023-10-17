@@ -1,7 +1,7 @@
 import hydra
 import os
 
-from jjuke.utils import seed_everything
+from jjuke.utils.utils import seed_everything
 
 def single_proc_run(config):
     from configs.config_utils import CONFIG

@@ -1,15 +1,19 @@
-#  Trainer for P2RNet.
+import torch
+
 from models.training import BaseTrainer
 from jjuke.network_utils.distributed import reduce_dict
 
 
 class Trainer(BaseTrainer):
-    """ DiffuScene Trainer """
+    """ Trainer object """
     def __init__(self, cfg, net, optimizer, device=None):
         super().__init__(cfg, net, optimizer, device)
+
         self.latent_input = net["latent_input"] # 
         self.generator = net["generator"]
 
+
+    @torch.no_grad()
     def eval_step(self, data):
         """ Performs a step in evaluation
 
@@ -17,7 +21,7 @@ class Trainer(BaseTrainer):
             data (dict): data dictionary
         """
         """ Load input and ground-truth data """
-        data = self.to_device(data)
+        # data = self.to_device(data)
 
         """ Network forwarding """
         latent_z = self.latent_input(data)
@@ -33,6 +37,7 @@ class Trainer(BaseTrainer):
         loss_reduced = reduce_dict(loss)
         loss_dict = {k: v.item() for k, v in loss_reduced.items()}
         return loss_dict
+
 
     def train_step(self, data, stage="all", start_deform=False, **kwargs):
         """ Performs a step training
@@ -64,18 +69,14 @@ class Trainer(BaseTrainer):
         loss_dict = {k: v.item() for k, v in loss_reduced.items()}
         return loss_dict, extra_output
 
+
+    @torch.no_grad()
     def visualize_step(self, *args, **kwargs):
         """ Performs a visualization step. """
         if not self.cfg.is_master:
             return
         pass
 
-    def to_device(self, data):
-        device = self.device
-        for key in data:
-            if key in ["sample_name"]: continue
-            data[key] = data[key].to(device)
-        return data
 
     def compute_loss(self, data, start_deform=False, **kwargs):
         """ Compute the overall loss.
@@ -84,7 +85,7 @@ class Trainer(BaseTrainer):
             data (dict): data dictionary
         """
         """ Load input and ground-truth data """
-        data = self.to_device(data)
+        # data = self.to_device(data)
 
         """ Network forwarding """
         latent_z = self.latent_input(data)

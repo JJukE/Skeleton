@@ -10,7 +10,7 @@ from models.datasets import BaseDataset # base or commonly used dataset class
 
 class CustomDataset(BaseDataset):
     """ Example dataset class """
-    def __init__(self):
+    def __init__(self, cfg, mode):
         super().__init__()
     
     def __getitem__(self, idx):
@@ -23,9 +23,7 @@ def my_worker_init_fn(cfg, worker_id):
     else:
         np.random.seed(cfg.config.seed + worker_id)
 
-def my_dataloader(cfg):
-    mode = cfg.config.mode
-    
+def my_dataloader(cfg, mode):
     dataset = CustomDataset(cfg=cfg, mode=mode) # example
 
     if cfg.config.distributed.num_gpus > 1:

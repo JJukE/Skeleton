@@ -50,5 +50,6 @@ class Null(BaseLoss):
 #         return {"total": kl * self.weight, "kl": kl}
 
 
+""" Loss calculates losses given estimated data and gt data in the __call__ method. """
 # @LOSSES.register_module
-# class 
+# class

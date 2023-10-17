@@ -15,7 +15,15 @@ class CONFIG(object):
             self.logger.info(content)
         elif self.config.distributed.num_gpus == 1:
             self.logger.info(content)
-    
+
+
+    def warn(self, content):
+        if self.config.distributed.num_gpus > 1 and self.is_master:
+            self.logger.warn(content)
+        elif self.config.distributed.num_gpus == 1:
+            self.logger.warn(content)
+
+
     def flush(self):
         if self.config.distributed.num_gpus > 1 and self.is_master:
             self.logger.flush()

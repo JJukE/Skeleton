@@ -27,6 +27,8 @@ def load_model(cfg, device):
     """
     net = {}
     for net_type, net_specs in cfg.config.model.items():
+        if net_type == "args":
+            continue
         if net_specs.method not in METHODS.module_dict:
             cfg.info('The method %s is not defined, please check the correct name.' % (net_specs.method))
             cfg.info('Exit now.')
